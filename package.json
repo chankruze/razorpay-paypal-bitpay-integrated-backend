@@ -1,0 +1,21 @@
+{
+  "name": "razorpay-integrated-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "repository": "git@github.com:chankruze/razorpay-integrated-backend.git",
+  "author": "chankruze <chankruze@gmail.com>",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "razorpay": "^2.0.6"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "nodemon": "^2.0.6"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  }
+}
