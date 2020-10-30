@@ -40,9 +40,9 @@ router.post("/order", async (req, res) => {
   try {
     // create an order (post /orders)
     const order = await razorpay.orders.create({
-      amount: 50000,
-      currency: "INR",
-      receipt: "xxxyyydydyadha",
+      amount,
+      currency,
+      receipt,
     });
 
     if (!order) return res.status(500).send("Can't create order");
