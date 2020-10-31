@@ -68,4 +68,39 @@ router.post("/verify", async (req, res) => {
   res.json({ status: "ok" });
 });
 
+// @route   POST /check
+// @desc    verify using razorpay webhook
+router.post("/check", async (req, res) => {
+  try {
+    const {
+      orderCreationId,
+      razorpayPaymentId,
+      razorpayOrderId,
+      razorpaySignature,
+    } = req.body;
+
+    const checksum = crypto.createHmac(
+      "sha256",
+      process.env.RAZORPAY_KEY_SECRET
+    );
+    checksum.update(`${orderCreationId}|${razorpayPaymentId}`);
+    const digest = checksum.digest("hex");
+
+    if (digest !== razorpaySignature) {
+      return res
+        .status(400)
+        .json({ msg: "Transaction not legit!", isLegit: false });
+    }
+
+    res.json({
+      msg: "success",
+      isLegit: true,
+      orderId: razorpayOrderId,
+      paymentId: razorpayPaymentId,
+    });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
 module.exports = router;
