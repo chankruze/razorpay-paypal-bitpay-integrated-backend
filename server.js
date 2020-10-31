@@ -9,10 +9,13 @@ const utils = require("./utils"),
   os = require("os"),
   path = require("path"),
   express = require("express"),
-  bodyParser = require("body-parser");
+  bodyParser = require("body-parser"),
+  cors = require("cors");
 
 // create an express app instance
 const app = express();
+// CORS
+app.use(cors());
 // parse incoming request bodies
 app.use(bodyParser.json());
 
