@@ -111,11 +111,24 @@ router.post("/check", async (req, res) => {
         console.log(err);
       });
 
+    const {
+      product_name,
+      product_duration,
+      product_mrp,
+      product_price,
+      product_discount,
+      product_description,
+    } = orderData.notes;
     // Prepare data for email
     const purchaseData = {
       orderId: razorpayOrderId,
       paymentId: razorpayPaymentId,
-      product: orderData.notes,
+      product_name,
+      product_duration,
+      product_mrp,
+      product_price,
+      product_discount,
+      product_description,
       email: paymentData.email,
       mobile: paymentData.contact,
       date_time: new Date(paymentData.created_at * 1000).toString(),
@@ -126,7 +139,6 @@ router.post("/check", async (req, res) => {
         -2
       )}.${`${paymentData.amount}`.slice(-2)}`,
       method: paymentData.method,
-      description: paymentData.description,
     };
 
     // send key
