@@ -35,7 +35,7 @@ const razorpay = new Razorpay({
 // @desc    Create an order and returns order_id
 router.post("/order", async (req, res) => {
   // extract data form req
-  const { amount, currency, receipt } = req.body;
+  const { amount, currency, receipt, notes } = req.body;
 
   try {
     // create an order (post /orders)
@@ -44,6 +44,7 @@ router.post("/order", async (req, res) => {
         amount,
         currency,
         receipt,
+        notes
       })
       .then((response) => res.json(response))
       .catch((err) => res.status(500).send(err));
