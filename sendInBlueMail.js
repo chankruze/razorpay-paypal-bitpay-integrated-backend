@@ -7,11 +7,11 @@ Copyright (c) Geekofia 2020 and beyond
 const axios = require("axios");
 
 // url = process.env.SEND_IN_BLUE_API_URL
-const sendInBlueMail = async (email, params) => {
+const sendInBlueMail = async (params) => {
   const body = {
     to: [
       {
-        email,
+        email: params.email,
       },
     ],
     params: params,

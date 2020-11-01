@@ -131,7 +131,7 @@ router.post("/check", async (req, res) => {
 
     // send key
     if (orderData.status == "paid") {
-      sendInBlueMail(purchaseData.email, purchaseData).then((response) => {
+      sendInBlueMail(purchaseData).then((response) => {
         res.json({
           payment: "success",
           mailed:
