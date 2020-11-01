@@ -6,9 +6,11 @@
   "author": "chankruze <chankruze@gmail.com>",
   "license": "GPL-3.0",
   "dependencies": {
+    "axios": "^0.21.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "mailgen": "^2.0.14",
     "razorpay": "^2.0.6"
   },
   "devDependencies": {
