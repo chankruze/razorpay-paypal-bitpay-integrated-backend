@@ -75,13 +75,8 @@ router.post("/check", async (req, res) => {
     // store keys only for delivery purpose
     const hack_keys = [];
 
-    console.log({
-      product_type,
-      product_quantity,
-    });
-
     if (product_quantity > 1) {
-      Key.find(
+      await Key.find(
         { type: product_type, isSold: false, isActivated: false },
         (err, data) => {
           if (err) {
@@ -90,6 +85,7 @@ router.post("/check", async (req, res) => {
           } else {
             for (let i = 0; i < product_quantity; ++i) {
               const doc = data[i];
+              console.log(doc);
               hack_keys.push(doc.key);
               doc.isActivated = true;
               doc.isSold = true;
@@ -99,7 +95,7 @@ router.post("/check", async (req, res) => {
         }
       );
     } else {
-      Key.findOne(
+      await Key.findOne(
         { type: product_type, isSold: false, isActivated: false },
         (err, data) => {
           if (err) {
@@ -115,7 +111,11 @@ router.post("/check", async (req, res) => {
       );
     }
 
-    console.log(hack_keys);
+    // if (hack_keys.length === 0) {
+    //   res.staus(500).json({
+    //     error: "Mongoose hanging",
+    //   });
+    // }
 
     // Prepare data for email
     const purchaseData = {
@@ -143,13 +143,13 @@ router.post("/check", async (req, res) => {
     // send key
     if (orderData.status == "paid") {
       sendInBlueMail(purchaseData).then((response) => {
-        res.json({
-          payment: "success",
-          mailed:
-            utils.isEmpty(response) || utils.isBlank(response) ? false : true,
-          maillId: response,
-          purchaseData,
-        });
+        if (response == "success") {
+          res.json({
+            payment: "success",
+            maillId: response,
+            purchaseData,
+          });
+        }
       });
     }
   } catch (error) {

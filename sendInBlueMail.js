@@ -38,13 +38,20 @@ const sendInBlueMail = async (params) => {
     templateId: 1,
   };
 
-  await axios
-    .post(process.env.SEND_IN_BLUE_API_URL, clientBody, config)
-    .catch((err) => console.log(err));
+  try {
+    await axios
+      .post(process.env.SEND_IN_BLUE_API_URL, clientBody, config)
+      .catch((err) => console.log(err));
 
-  await axios
-    .post(process.env.SEND_IN_BLUE_API_URL, adminBody, config)
-    .catch((err) => console.log(err));
+    await axios
+      .post(process.env.SEND_IN_BLUE_API_URL, adminBody, config)
+      .catch((err) => console.log(err));
+
+    return "success";
+  } catch (e) {
+    console.log(e);
+    return "failed";
+  }
 };
 
 module.exports = sendInBlueMail;
