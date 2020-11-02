@@ -23,13 +23,7 @@ const sendInBlueMail = async (params) => {
         email: params.email,
       },
     ],
-    params,
-    templateId: 1,
-  };
-
-  // send this to staff
-  const adminBody = {
-    to: [
+    bcc: [
       {
         email: process.env.ADMIN_EMAIL,
       },
@@ -38,14 +32,25 @@ const sendInBlueMail = async (params) => {
     templateId: 1,
   };
 
+  // send this to staff
+  // const adminBody = {
+  //   to: [
+  //     {
+  //       email: process.env.ADMIN_EMAIL,
+  //     },
+  //   ],
+  //   params,
+  //   templateId: 1,
+  // };
+
   try {
     await axios
       .post(process.env.SEND_IN_BLUE_API_URL, clientBody, config)
       .catch((err) => console.log(err));
 
-    await axios
-      .post(process.env.SEND_IN_BLUE_API_URL, adminBody, config)
-      .catch((err) => console.log(err));
+    // await axios
+    //   .post(process.env.SEND_IN_BLUE_API_URL, adminBody, config)
+    //   .catch((err) => console.log(err));
 
     return "success";
   } catch (e) {

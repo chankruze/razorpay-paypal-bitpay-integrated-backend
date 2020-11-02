@@ -85,10 +85,10 @@ router.post("/check", async (req, res) => {
           } else {
             for (let i = 0; i < product_quantity; ++i) {
               const doc = data[i];
-              console.log(doc);
               hack_keys.push(doc.key);
               doc.isActivated = true;
               doc.isSold = true;
+              doc.dateSold = Date.now();
               doc.save();
             }
           }
@@ -105,6 +105,7 @@ router.post("/check", async (req, res) => {
             hack_keys.push(data.key);
             data.isActivated = true;
             data.isSold = true;
+            data.dateSold = Date.now();
             data.save();
           }
         }

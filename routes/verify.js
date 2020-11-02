@@ -23,7 +23,7 @@ router.post("/verify", async (req, res) => {
   const digest = checksum.digest("hex");
 
   if (digest === req.headers["x-razorpay-signature"]) {
-    console.log("request is legit");
+    // console.log("request is legit");
     // can send email here
   } else {
   }
