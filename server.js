@@ -7,19 +7,23 @@ Copyright (c) Geekofia 2020 and beyond
 
 const utils = require("./utils"),
   os = require("os"),
-  path = require("path"),
   express = require("express"),
   bodyParser = require("body-parser"),
-  cors = require("cors");
+  cors = require("cors"),
+  connectMongoDB = require("./mongo/db");
 
 // create an express app instance
 const app = express();
 // CORS
 app.use(cors());
+// connect mongo DB
+connectMongoDB();
 // parse incoming request bodies
 app.use(bodyParser.json());
 
-app.use("/", require("./routes"));
+app.use("/", require("./routes/order"));
+app.use("/", require("./routes/verify"));
+app.use("/", require("./routes/check"));
 
 // Print sevrer IP
 const networkInterfaces = os.networkInterfaces();

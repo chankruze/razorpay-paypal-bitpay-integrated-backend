@@ -8,16 +8,6 @@ const axios = require("axios");
 
 // url = process.env.SEND_IN_BLUE_API_URL
 const sendInBlueMail = async (params) => {
-  const body = {
-    to: [
-      {
-        email: params.email,
-      },
-    ],
-    params: params,
-    templateId: 1,
-  };
-
   const config = {
     headers: {
       Accept: "application/json",
@@ -26,11 +16,35 @@ const sendInBlueMail = async (params) => {
     },
   };
 
-  const { data: sendInBlue } = await axios
-    .post(process.env.SEND_IN_BLUE_API_URL, body, config)
+  // send this to customer
+  const clientBody = {
+    to: [
+      {
+        email: params.email,
+      },
+    ],
+    params,
+    templateId: 1,
+  };
+
+  // send this to staff
+  const adminBody = {
+    to: [
+      {
+        email: process.env.ADMIN_EMAIL,
+      },
+    ],
+    params,
+    templateId: 1,
+  };
+
+  await axios
+    .post(process.env.SEND_IN_BLUE_API_URL, clientBody, config)
     .catch((err) => console.log(err));
 
-  return sendInBlue.messageId;
+  await axios
+    .post(process.env.SEND_IN_BLUE_API_URL, adminBody, config)
+    .catch((err) => console.log(err));
 };
 
 module.exports = sendInBlueMail;

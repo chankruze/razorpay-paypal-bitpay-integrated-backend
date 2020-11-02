@@ -1,76 +1,24 @@
 /*
 Author: chankruze (chankruze@geekofia.in)
-Created: Sat Oct 31 2020 03:21:43 GMT+0530 (India Standard Time)
+Created: Mon Nov 02 2020 19:47:08 GMT+0530 (India Standard Time)
 
 Copyright (c) Geekofia 2020 and beyond
 */
 
-const axios = require("axios");
+const { response } = require("express");
 
-const utils = require("./utils"),
-  sendInBlueMail = require("./sendInBlueMail"),
+const utils = require("../utils"),
   router = require("express").Router(),
-  Razorpay = require("razorpay"),
-  crypto = require("crypto");
+  crypto = require("crypto"),
+  axios = require("axios"),
+  sendInBlueMail = require("../sendInBlueMail"),
+  Key = require("../mongo/model/KeySchema");
 
 // check for prod or dev environment
 // if dev import dotenv
 if (utils.isDevEnv()) {
   require("dotenv").config();
 }
-
-/**
- * create a new Razorpay instance
- */
-
-const razorpay = new Razorpay({
-  // reads from .env(dev) or environmental variable(prod)
-  // generated from https://dashboard.razorpay.com/app/keys
-  key_id: process.env.RAZORPAY_KEY_ID, // Key Id
-  key_secret: process.env.RAZORPAY_KEY_SECRET, // Key Secret
-});
-
-/**
- * define Routes
- */
-
-// @route   POST /order
-// @desc    Create an order and returns order_id
-router.post("/order", async (req, res) => {
-  // extract data form req
-  const { amount, currency, receipt, notes } = req.body;
-
-  try {
-    // create an order (post /orders)
-    await razorpay.orders
-      .create({
-        amount,
-        currency,
-        receipt,
-        notes,
-      })
-      .then((response) => res.json(response))
-      .catch((err) => res.status(500).send(err));
-  } catch (error) {
-    res.status(500).send(error);
-  }
-});
-
-// @route   POST /verify
-// @desc    verify using razorpay webhook
-router.post("/verify", async (req, res) => {
-  const checksum = crypto.createHmac("sha256", process.env.RAZORPAY_SHA_SECRET);
-  checksum.update(JSON.stringify(req.body));
-  const digest = checksum.digest("hex");
-
-  if (digest === req.headers["x-razorpay-signature"]) {
-    console.log("request is legit");
-    // process it
-  } else {
-    // pass it
-  }
-  res.json({ status: "ok" });
-});
 
 // @route   POST /check
 // @desc    verify using razorpay webhook
@@ -90,6 +38,7 @@ router.post("/check", async (req, res) => {
     checksum.update(`${orderCreationId}|${razorpayPaymentId}`);
     const digest = checksum.digest("hex");
 
+    // payment not legit
     if (digest !== razorpaySignature) {
       return res
         .status(400)
@@ -117,28 +66,78 @@ router.post("/check", async (req, res) => {
       product_mrp,
       product_price,
       product_discount,
-      product_description,
+      product_type,
+      product_quantity,
+      total_price,
+      total_discount,
     } = orderData.notes;
+
+    // store keys only for delivery purpose
+    const hack_keys = [];
+
+    console.log({
+      product_type,
+      product_quantity,
+    });
+
+    if (product_quantity > 1) {
+      Key.find(
+        { type: product_type, isSold: false, isActivated: false },
+        (err, data) => {
+          if (err) {
+            console.log(`[E] Error finding documents`);
+            console.log(err);
+          } else {
+            for (let i = 0; i < product_quantity; ++i) {
+              const doc = data[i];
+              hack_keys.push(doc.key);
+              doc.isActivated = true;
+              doc.isSold = true;
+              doc.save();
+            }
+          }
+        }
+      );
+    } else {
+      Key.findOne(
+        { type: product_type, isSold: false, isActivated: false },
+        (err, data) => {
+          if (err) {
+            console.log(`[E] Error finding documents`);
+            console.log(err);
+          } else {
+            hack_keys.push(data.key);
+            data.isActivated = true;
+            data.isSold = true;
+            data.save();
+          }
+        }
+      );
+    }
+
+    console.log(hack_keys);
+
     // Prepare data for email
     const purchaseData = {
+      duration: product_duration,
+      products: hack_keys,
       orderId: razorpayOrderId,
       paymentId: razorpayPaymentId,
-      product_name,
-      product_duration,
-      product_mrp,
-      product_price,
-      product_discount,
-      product_description,
-      email: paymentData.email,
-      mobile: paymentData.contact,
-      date_time: new Date(paymentData.created_at * 1000).toString(),
-      hack_key: "MONTH7C8F99C87FCB4CBFBE13C8962C0305F9",
-      receipt: orderData.receipt,
-      price: `₹${`${paymentData.amount}`.slice(
+      name: product_name,
+      mrp: `₹${product_mrp}`,
+      discount: `₹${product_discount}`,
+      price: `₹${product_price}`,
+      quantity: product_quantity,
+      total: `₹${`${paymentData.amount}`.slice(
         0,
         -2
       )}.${`${paymentData.amount}`.slice(-2)}`,
+      totalDiscount: `₹${total_discount}`,
+      email: paymentData.email,
+      mobile: paymentData.contact,
+      receipt: orderData.receipt,
       method: paymentData.method,
+      date: new Date(paymentData.created_at * 1000).toLocaleString(),
     };
 
     // send key
@@ -154,6 +153,7 @@ router.post("/check", async (req, res) => {
       });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).send(error);
   }
 });
