@@ -25,8 +25,12 @@ app.use(bodyParser.json());
 app.use("/", require("./routes/order"));
 app.use("/", require("./routes/verify"));
 app.use("/", require("./routes/check"));
+// POST (Admin Only)
+app.use("/admin", require("./routes/order"));
+app.use("/admin", require("./routes/verify"));
+app.use("/admin", require("./routes/check"));
 // GET
-app.use("/", require("./routes/store"));
+app.use("/store", require("./routes/store"));
 
 // Print sevrer IP
 const networkInterfaces = os.networkInterfaces();
