@@ -21,9 +21,12 @@ connectMongoDB();
 // parse incoming request bodies
 app.use(bodyParser.json());
 
+// POST
 app.use("/", require("./routes/order"));
 app.use("/", require("./routes/verify"));
 app.use("/", require("./routes/check"));
+// GET
+app.use("/", require("./routes/store"));
 
 // Print sevrer IP
 const networkInterfaces = os.networkInterfaces();
