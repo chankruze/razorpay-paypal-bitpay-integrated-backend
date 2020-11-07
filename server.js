@@ -32,7 +32,7 @@ app.use("/store", require("./routes/store"));
 // Admin Only
 // POST
 app.use("/admin", require("./routes/admin/auth"));
-// app.use("/admin", require("./routes/admin/add"));
+app.use("/admin", require("./routes/admin/add"));
 app.use("/admin", require("./routes/admin/update"));
 app.use("/admin", require("./routes/admin/delete"));
 // GET
