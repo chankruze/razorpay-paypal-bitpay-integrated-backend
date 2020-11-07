@@ -29,19 +29,18 @@ router.post("/update/key", async (req, res) => {
     .catch((err) => res.status(403).json(err));
 
   if (auth.status === 69) {
-    await Key.findById(data.id, (err, data) => {
+    await Key.findById(data.id, async (err, doc) => {
       if (err) {
         console.log(`[E] Error finding documents`);
         console.log(err);
       } else {
         const { key, type, duration, isActivated, isSold } = data;
-        data.key = key;
-        data.type = type;
-        data.duration = duration;
-        data.isActivated = isActivated;
-        data.isSold = isSold;
-        data.dateSold = new Date().toISOString();
-        data.save();
+        doc.key = key;
+        doc.type = type;
+        doc.duration = duration;
+        doc.isActivated = isActivated;
+        doc.isSold = isSold;
+        await doc.save();
       }
     });
 
@@ -66,20 +65,17 @@ router.post("/update/category", async (req, res) => {
   if (auth.status === 69) {
     // count total keys of same category
     let keysCount = 0;
-    await Key.countDocuments(
-      { type: data.category },
-      (error, count) => {
-        if (count) {
-          keysCount = count;
-        }
-
-        if (error) {
-          console.log(error);
-        }
+    await Key.countDocuments({ type: data.category }, (error, count) => {
+      if (error) {
+        console.log(error);
       }
-    );
 
-    await Category.findById(data.id, (err, data) => {
+      if (count) {
+        keysCount = count;
+      }
+    });
+
+    await Category.findById(data.id, async (err, doc) => {
       if (err) {
         console.log(`[E] Error finding documents`);
         console.log(err);
@@ -96,17 +92,17 @@ router.post("/update/category", async (req, res) => {
         } = data;
 
         // update category data
-        data.name = name;
-        data.category = category;
-        data.mrp = mrp;
-        data.price = price;
-        data.currency = currency;
-        data.description = description;
-        data.image = image;
-        data.tag = tag;
-        data.count = keysCount;
-        data.dateUpdated = new Date().toISOString();
-        data.save();
+        doc.name = name;
+        doc.category = category;
+        doc.mrp = mrp;
+        doc.price = price;
+        doc.currency = currency;
+        doc.description = description;
+        doc.image = image;
+        doc.tag = tag;
+        doc.count = keysCount;
+        doc.dateUpdated = new Date().toISOString();
+        await doc.save();
       }
     });
 
