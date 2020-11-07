@@ -36,10 +36,12 @@ router.post("/auth", async (req, res) => {
     process.env.HUNTER_CRED
   ).toString();
 
-  // payment not legit
+  // unauthorized user
   if (servHash !== signature) {
     console.log(`[ADMIN] Fake admin restricted`);
-    return res.status(401).json({ status: 0, msg: "You're not authorized" });
+    return res
+      .status(401)
+      .json({ status: 0, msg: "You're not authorized, plaes fuck off!" });
   }
 
   console.log(`[ADMIN] Admin authenticated`);

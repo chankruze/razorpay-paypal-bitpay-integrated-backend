@@ -21,8 +21,6 @@ const utils = require("../../utils"),
 router.post("/update/key", async (req, res) => {
   const { keydata, timestamp } = req.body;
 
-  console.log(req.get("host"));
-
   const config = {
     proxy: utils.isDevEnv
       ? {
@@ -39,7 +37,6 @@ router.post("/update/key", async (req, res) => {
     .catch((err) => res.status(403).json(err));
 
   if (auth.status === 69) {
-    console.log(`touching ${keydata.id}`);
     await Key.findById(keydata.id, (err, data) => {
       if (err) {
         console.log(`[E] Error finding documents`);
