@@ -34,7 +34,7 @@ app.use("/store", require("./routes/store"));
 app.use("/admin", require("./routes/admin/auth"));
 // app.use("/admin", require("./routes/admin/add"));
 app.use("/admin", require("./routes/admin/update"));
-// app.use("/admin", require("./routes/admin/delete"));
+app.use("/admin", require("./routes/admin/delete"));
 // GET
 app.use("/admin", require("./routes/admin/list"));
 
