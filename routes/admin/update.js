@@ -83,7 +83,15 @@ router.post("/update/category", async (req, res) => {
     let keysCount = 0;
     await Key.countDocuments(
       { type: categorydata.category },
-      (error, count) => (keysCount = count)
+      (error, count) => {
+        if (count) {
+          keysCount = count;
+        }
+
+        if (error) {
+          console.log(error);
+        }
+      }
     );
 
     await Category.findById(categorydata.id, (err, data) => {
