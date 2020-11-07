@@ -75,6 +75,7 @@ router.post("/check", async (req, res) => {
     // store keys only for delivery purpose
     const hack_keys = [];
 
+    // get key and update key count in category
     if (product_quantity > 1) {
       await Key.find(
         { type: product_type, isSold: false, isActivated: false },

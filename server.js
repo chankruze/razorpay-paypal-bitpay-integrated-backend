@@ -21,16 +21,22 @@ connectMongoDB();
 // parse incoming request bodies
 app.use(bodyParser.json());
 
+// Public
 // POST
 app.use("/", require("./routes/order"));
 app.use("/", require("./routes/verify"));
 app.use("/", require("./routes/check"));
-// POST (Admin Only)
-app.use("/admin", require("./routes/order"));
-app.use("/admin", require("./routes/verify"));
-app.use("/admin", require("./routes/check"));
 // GET
 app.use("/store", require("./routes/store"));
+
+// Admin Only
+// POST
+app.use("/admin", require("./routes/admin/auth"));
+// app.use("/admin", require("./routes/admin/add"));
+app.use("/admin", require("./routes/admin/update"));
+// app.use("/admin", require("./routes/admin/delete"));
+// GET
+app.use("/admin", require("./routes/admin/list"));
 
 // Print sevrer IP
 const networkInterfaces = os.networkInterfaces();
