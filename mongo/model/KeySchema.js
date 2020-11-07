@@ -13,8 +13,8 @@ const keySchema = new mongoose.Schema({
   duration: Number,
   isSold: Boolean,
   isActivated: Boolean,
-  dateCreated: { type: String, default: Date.now },
-  dateSold: { type: String, default: "TBD" },
+  dateCreated: { type: String, default: new Date().toISOString() },
+  dateSold: { type: String, default: "" },
 });
 
 module.exports = mongoose.model("Key", keySchema);

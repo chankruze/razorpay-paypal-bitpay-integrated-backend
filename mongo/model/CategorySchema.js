@@ -16,8 +16,8 @@ const keySchema = new mongoose.Schema({
   description: String,
   image: String,
   tag: String,
-  dateUpdated: String,
   count: Number,
+  dateUpdated: { type: String, default: new Date().toISOString() },
 });
 
 module.exports = mongoose.model("Category", keySchema);
