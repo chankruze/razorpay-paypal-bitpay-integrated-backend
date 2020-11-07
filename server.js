@@ -32,11 +32,10 @@ app.use("/store", require("./routes/store"));
 // Admin Only
 // POST
 app.use("/admin", require("./routes/admin/auth"));
+app.use("/admin", require("./routes/admin/fetch"));
 app.use("/admin", require("./routes/admin/add"));
 app.use("/admin", require("./routes/admin/update"));
 app.use("/admin", require("./routes/admin/delete"));
-// GET
-app.use("/admin", require("./routes/admin/list"));
 
 // Print sevrer IP
 const networkInterfaces = os.networkInterfaces();
