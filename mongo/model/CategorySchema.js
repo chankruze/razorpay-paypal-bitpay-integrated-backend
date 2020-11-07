@@ -16,6 +16,7 @@ const keySchema = new mongoose.Schema({
   description: String,
   image: String,
   tag: String,
+  dateUpdated: String,
   count: Number,
 });
 

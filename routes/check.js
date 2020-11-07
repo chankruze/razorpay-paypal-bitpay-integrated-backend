@@ -5,8 +5,6 @@ Created: Mon Nov 02 2020 19:47:08 GMT+0530 (India Standard Time)
 Copyright (c) Geekofia 2020 and beyond
 */
 
-const { response } = require("express");
-
 const utils = require("../utils"),
   router = require("express").Router(),
   crypto = require("crypto"),

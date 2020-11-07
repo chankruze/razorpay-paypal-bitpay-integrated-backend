@@ -6,7 +6,7 @@ Copyright (c) Geekofia 2020 and beyond
 */
 
 const router = require("express").Router(),
-  Category = require("../mongo/model/categorySchema");
+  Category = require("../mongo/model/CategorySchema");
 
 router.get("/categories", async (req, res) => {
   await Category.find({}, (err, data) => {
