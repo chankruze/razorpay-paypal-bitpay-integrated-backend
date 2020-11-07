@@ -11,6 +11,12 @@ const utils = require("../../utils"),
   Key = require("../../mongo/model/KeySchema"),
   Category = require("../../mongo/model/CategorySchema");
 
+// check for prod or dev environment
+// if dev import dotenv
+if (utils.isDevEnv()) {
+  require("dotenv").config();
+}
+
 router.post("/add/key", async (req, res) => {
   const { keydata, timestamp } = req.body;
 
