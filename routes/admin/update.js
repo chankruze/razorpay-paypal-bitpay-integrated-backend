@@ -18,7 +18,7 @@ if (utils.isDevEnv()) {
 }
 
 router.post("/update/key", async (req, res) => {
-  const { keydata, timestamp } = req.body;
+  const { data, timestamp } = req.body;
 
   const config = {
     headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
@@ -29,12 +29,12 @@ router.post("/update/key", async (req, res) => {
     .catch((err) => res.status(403).json(err));
 
   if (auth.status === 69) {
-    await Key.findById(keydata.id, (err, data) => {
+    await Key.findById(data.id, (err, data) => {
       if (err) {
         console.log(`[E] Error finding documents`);
         console.log(err);
       } else {
-        const { key, type, duration, isActivated, isSold } = keydata;
+        const { key, type, duration, isActivated, isSold } = data;
         data.key = key;
         data.type = type;
         data.duration = duration;
@@ -53,7 +53,7 @@ router.post("/update/key", async (req, res) => {
 });
 
 router.post("/update/category", async (req, res) => {
-  const { categorydata, timestamp } = req.body;
+  const { data, timestamp } = req.body;
 
   const config = {
     headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
@@ -67,7 +67,7 @@ router.post("/update/category", async (req, res) => {
     // count total keys of same category
     let keysCount = 0;
     await Key.countDocuments(
-      { type: categorydata.category },
+      { type: data.category },
       (error, count) => {
         if (count) {
           keysCount = count;
@@ -79,7 +79,7 @@ router.post("/update/category", async (req, res) => {
       }
     );
 
-    await Category.findById(categorydata.id, (err, data) => {
+    await Category.findById(data.id, (err, data) => {
       if (err) {
         console.log(`[E] Error finding documents`);
         console.log(err);
@@ -93,7 +93,7 @@ router.post("/update/category", async (req, res) => {
           description,
           image,
           tag,
-        } = categorydata;
+        } = data;
 
         // update category data
         data.name = name;

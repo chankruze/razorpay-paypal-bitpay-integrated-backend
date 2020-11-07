@@ -18,7 +18,7 @@ if (utils.isDevEnv()) {
 }
 
 router.post("/delete/key", async (req, res) => {
-  const { keyId, timestamp } = req.body;
+  const { id, timestamp } = req.body;
 
   const config = {
     headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
@@ -29,7 +29,7 @@ router.post("/delete/key", async (req, res) => {
     .catch((error) => res.status(403).json(error));
 
   if (auth.status === 69) {
-    Key.findByIdAndDelete(keyId, (error) => {
+    Key.findByIdAndDelete(id, (error) => {
       if (error) {
         res.json({
           status: "failed",
@@ -45,7 +45,7 @@ router.post("/delete/key", async (req, res) => {
 });
 
 router.post("/delete/category", async (req, res) => {
-  const { categoryId, timestamp } = req.body;
+  const { id, timestamp } = req.body;
 
   const config = {
     headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
@@ -56,7 +56,7 @@ router.post("/delete/category", async (req, res) => {
     .catch((error) => res.status(403).json(error));
 
   if (auth.status === 69) {
-    Category.findByIdAndDelete(categoryId, (error) => {
+    Category.findByIdAndDelete(id, (error) => {
       if (error) {
         res.json({
           status: "failed",
