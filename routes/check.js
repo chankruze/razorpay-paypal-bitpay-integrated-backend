@@ -93,7 +93,7 @@ router.post("/check", async (req, res) => {
               hack_keys.push(doc.key);
               doc.isActivated = true;
               doc.isSold = true;
-              doc.dateSold = Date.now();
+              doc.dateSold = new Date().toISOString();
               doc.save();
             }
           }
@@ -102,16 +102,17 @@ router.post("/check", async (req, res) => {
     } else {
       await Key.findOne(
         { type: product_type, isSold: false, isActivated: false },
-        (err, data) => {
+        (err, doc) => {
           if (err) {
             console.log(`[E] Error finding documents`);
             console.log(err);
           } else {
-            hack_keys.push(data.key);
-            data.isActivated = true;
-            data.isSold = true;
-            data.dateSold = Date.now();
-            data.save();
+            console.log(doc);
+            hack_keys.push(doc.key);
+            doc.isActivated = true;
+            doc.isSold = true;
+            doc.dateSold = new Date().toISOString();
+            doc.save();
           }
         }
       );
