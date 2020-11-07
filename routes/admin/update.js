@@ -5,13 +5,6 @@ Created: Wed Nov 04 2020 23:08:31 GMT+0530 (India Standard Time)
 Copyright (c) Geekofia 2020 and beyond
 */
 
-const { countDocuments } = require("../../mongo/model/KeySchema");
-
-// add a secret to server env & host env, shahmac with username & pass and timestamp, send hash & timestamp
-// to server. on server encode with server secret + client time stamp + username + pass
-// token = hex with username + pass
-// x-hunter-signature = hex with token + username + pass
-
 const utils = require("../../utils"),
   router = require("express").Router(),
   axios = require("axios"),
@@ -22,18 +15,11 @@ router.post("/update/key", async (req, res) => {
   const { keydata, timestamp } = req.body;
 
   const config = {
-    proxy: utils.isDevEnv
-      ? {
-          host: "localhost",
-          port: 6969,
-          protocol: "http",
-        }
-      : false,
     headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
   };
 
   const { data: auth } = await axios
-    .post("/admin/auth", { timestamp }, config)
+    .post(`${process.env.AUTH_URL_BASE}/admin/auth`, { timestamp }, config)
     .catch((err) => res.status(403).json(err));
 
   if (auth.status === 69) {
@@ -64,18 +50,11 @@ router.post("/update/category", async (req, res) => {
   const { categorydata, timestamp } = req.body;
 
   const config = {
-    proxy: utils.isDevEnv
-      ? {
-          host: "localhost",
-          port: 6969,
-          protocol: "http",
-        }
-      : false,
     headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
   };
 
   const { data: auth } = await axios
-    .post("/admin/auth", { timestamp }, config)
+    .post(`${process.env.AUTH_URL_BASE}/admin/auth`, { timestamp }, config)
     .catch((err) => res.status(403).json(err));
 
   if (auth.status === 69) {

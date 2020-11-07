@@ -15,18 +15,11 @@ router.post("/delete/key", async (req, res) => {
   const { keyId, timestamp } = req.body;
 
   const config = {
-    proxy: utils.isDevEnv
-      ? {
-          host: "localhost",
-          port: 6969,
-          protocol: "http",
-        }
-      : false,
     headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
   };
 
   const { data: auth } = await axios
-    .post("/admin/auth", { timestamp }, config)
+    .post(`${process.env.AUTH_URL_BASE}/admin/auth`, { timestamp }, config)
     .catch((error) => res.status(403).json(error));
 
   if (auth.status === 69) {
@@ -49,18 +42,11 @@ router.post("/delete/category", async (req, res) => {
   const { categoryId, timestamp } = req.body;
 
   const config = {
-    proxy: utils.isDevEnv
-      ? {
-          host: "localhost",
-          port: 6969,
-          protocol: "http",
-        }
-      : false,
     headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
   };
 
   const { data: auth } = await axios
-    .post("/admin/auth", { timestamp }, config)
+    .post(`${process.env.AUTH_URL_BASE}/admin/auth`, { timestamp }, config)
     .catch((error) => res.status(403).json(error));
 
   if (auth.status === 69) {
