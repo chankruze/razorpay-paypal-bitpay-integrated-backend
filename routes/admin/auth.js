@@ -24,6 +24,12 @@ router.post("/auth", async (req, res) => {
   const { timestamp } = req.body;
   const signature = req.headers["x-hunter-signature"];
 
+  if (!timestamp) {
+    res
+      .status(401)
+      .json({ status: 0, msg: "You're not authorized, plaes fuck off!" });
+  }
+
   // generate token
   const servToken = Hmacsha256(
     timestamp.toString(),
