@@ -46,7 +46,7 @@ router.post("/create/keys", async (req, res) => {
 });
 
 router.post("/create/categories", async (req, res) => {
-  const { categorydata, timestamp } = req.body;
+  const { data, timestamp } = req.body;
 
   const config = {
     headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
@@ -66,19 +66,9 @@ router.post("/create/categories", async (req, res) => {
       description,
       image,
       tag,
-    } = categorydata;
+    } = data;
 
-    // count total keys of same category
-    let keysCount = 0;
-    await Key.countDocuments({ type: category }, (error, count) => {
-      if (count) {
-        keysCount = count;
-      }
-
-      if (error) {
-        console.log(error);
-      }
-    });
+    const keysCount = await Key.countDocuments({ type: category });
 
     await Category.create(
       {
@@ -90,7 +80,7 @@ router.post("/create/categories", async (req, res) => {
         description,
         image,
         tag,
-        count: keysCount,
+        count: keysCount || 0,
       },
       (error, data) => {
         if (error) {
@@ -100,13 +90,14 @@ router.post("/create/categories", async (req, res) => {
             msg: "Couldn't add category",
           });
         }
-        console.log(data);
-        res.json({
-          status: "ok",
-          msg: "Category add successfully",
-        });
+        // console.log(data);
       }
     );
+
+    res.json({
+      status: "ok",
+      msg: "Category add successfully",
+    });
   }
 });
 
