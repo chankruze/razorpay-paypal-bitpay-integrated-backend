@@ -12,11 +12,15 @@ const keySchema = new mongoose.Schema({
   category: String,
   mrp: Number,
   price: Number,
-  currency: String,
-  description: String,
-  image: String,
-  tag: String,
-  count: Number,
+  currency: { type: String, default: "INR" },
+  description: { type: String, default: "" },
+  image: {
+    type: String,
+    default:
+      "https://res.cloudinary.com/chankruze/image/upload/v1604513114/Hunter/sx.png",
+  },
+  tag: { type: String, default: "" },
+  count: { type: Number, default: 0 },
   dateUpdated: { type: String, default: new Date().toISOString() },
 });
 
