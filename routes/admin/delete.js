@@ -44,6 +44,45 @@ router.post("/delete/key", async (req, res) => {
   }
 });
 
+// bulk delete
+router.post("/delete/keys", async (req, res) => {
+  const { ids, timestamp } = req.body;
+
+  const config = {
+    headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
+  };
+
+  const { data: auth } = await axios
+    .post(`${process.env.AUTH_URL_BASE}/admin/auth`, { timestamp }, config)
+    .catch((error) => res.status(403).json(error));
+
+  if (auth.status === 69) {
+    await Key.deleteMany(
+      {
+        _id: {
+          $in: ids,
+        },
+      },
+      (error, response) => {
+        if (error) {
+          res.json({
+            status: "failed",
+            msg: "Couldn't delete keys",
+          });
+        }
+        const { ok, n } = response;
+        if (ok === 1) {
+          res.json({
+            status: "ok",
+            count: n,
+            msg: "Keys deleted successfully",
+          });
+        }
+      }
+    );
+  }
+});
+
 router.post("/delete/category", async (req, res) => {
   const { id, timestamp } = req.body;
 
@@ -68,6 +107,45 @@ router.post("/delete/category", async (req, res) => {
         msg: "Category deleted successfully",
       });
     });
+  }
+});
+
+// bulk delete
+router.post("/delete/categories", async (req, res) => {
+  const { ids, timestamp } = req.body;
+
+  const config = {
+    headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
+  };
+
+  const { data: auth } = await axios
+    .post(`${process.env.AUTH_URL_BASE}/admin/auth`, { timestamp }, config)
+    .catch((error) => res.status(403).json(error));
+
+  if (auth.status === 69) {
+    Category.deleteMany(
+      {
+        _id: {
+          $in: ids,
+        },
+      },
+      (error, response) => {
+        if (error) {
+          res.json({
+            status: "failed",
+            msg: "Couldn't delete Categories",
+          });
+        }
+        const { ok, n } = response;
+        if (ok === 1) {
+          res.json({
+            status: "ok",
+            count: n,
+            msg: "Keys deleted successfully",
+          });
+        }
+      }
+    );
   }
 });
 
