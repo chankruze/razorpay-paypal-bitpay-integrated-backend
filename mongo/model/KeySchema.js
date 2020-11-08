@@ -10,9 +10,9 @@ const mongoose = require("mongoose");
 const keySchema = new mongoose.Schema({
   key: String,
   type: String,
-  duration: Number,
-  isSold: Boolean,
-  isActivated: Boolean,
+  duration: { type: Number, default: 1 },
+  isSold: { type: Boolean, default: false },
+  isActivated: { type: Boolean, default: false },
   dateCreated: { type: String, default: new Date().toISOString() },
   dateSold: { type: String, default: "" },
 });
