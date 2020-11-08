@@ -17,8 +17,8 @@ if (utils.isDevEnv()) {
   require("dotenv").config();
 }
 
-router.post("/add/key", async (req, res) => {
-  const { keydata, timestamp } = req.body;
+router.post("/create/keys", async (req, res) => {
+  const { data, timestamp } = req.body;
 
   const config = {
     headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
@@ -29,35 +29,23 @@ router.post("/add/key", async (req, res) => {
     .catch((error) => res.status(403).json(error));
 
   if (auth.status === 69) {
-    const { key, type, duration } = keydata;
-
-    await Key.create(
-      {
-        key,
-        type,
-        duration,
-        isSold: false,
-        isActivated: false,
-      },
-      (error, data) => {
-        if (error) {
-          console.log(error);
-          res.json({
-            status: "failed",
-            msg: "Couldn't add key",
-          });
-        }
-        console.log(data);
-        res.json({
-          status: "ok",
-          msg: "Key add successfully",
-        });
+    await Key.insertMany(data, async (err, doc) => {
+      if (err) {
+        console.log(`[E] Error finding documents`);
+        console.log(err);
+      } else {
+        // all ok
       }
-    );
+    });
+
+    res.json({
+      status: "ok",
+      msg: "Keys inserted",
+    });
   }
 });
 
-router.post("/add/category", async (req, res) => {
+router.post("/create/categories", async (req, res) => {
   const { categorydata, timestamp } = req.body;
 
   const config = {
