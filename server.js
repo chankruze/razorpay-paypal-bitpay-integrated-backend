@@ -9,11 +9,13 @@ const utils = require("./utils"),
   os = require("os"),
   express = require("express"),
   bodyParser = require("body-parser"),
+  helmet = require("helmet"),
   cors = require("cors"),
   connectMongoDB = require("./mongo/db");
 
 // create an express app instance
 const app = express();
+app.use(helmet());
 // CORS
 app.use(cors());
 app.use((req, res, next) => {
@@ -24,10 +26,10 @@ app.use((req, res, next) => {
   );
   next();
 });
-// connect mongo DB
-connectMongoDB();
 // parse incoming request bodies
 app.use(bodyParser.json());
+// connect mongo DB
+connectMongoDB();
 
 // Public
 // POST
