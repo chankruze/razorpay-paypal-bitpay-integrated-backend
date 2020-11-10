@@ -10,7 +10,7 @@ const utils = require("../utils"),
   crypto = require("crypto"),
   axios = require("axios"),
   sendInBlueMail = require("../sendInBlueMail"),
-  Key = require("../mongo/model/KeySchema");
+  Key = require("../mongo/models/KeySchema");
 
 // check for prod or dev environment
 // if dev import dotenv
@@ -66,13 +66,13 @@ router.post("/check", async (req, res) => {
 
     const {
       product_name,
-      product_duration,
       product_mrp,
       product_price,
       product_discount,
       product_type,
       product_quantity,
-      total_price,
+      keys_count,
+      // total_price,
       total_discount,
     } = orderData.notes;
 
@@ -80,7 +80,7 @@ router.post("/check", async (req, res) => {
     const hack_keys = [];
 
     // get key and update key count in category
-    if (product_quantity > 1) {
+    if (keys_count > 1) {
       await Key.find(
         { type: product_type, isSold: false, isActivated: false },
         (err, data) => {
@@ -88,7 +88,7 @@ router.post("/check", async (req, res) => {
             console.log(`[E] Error finding documents`);
             console.log(err);
           } else {
-            for (let i = 0; i < product_quantity; ++i) {
+            for (let i = 0; i < keys_count; ++i) {
               const doc = data[i];
               hack_keys.push(doc.key);
               doc.isActivated = true;
@@ -126,7 +126,7 @@ router.post("/check", async (req, res) => {
 
     // Prepare data for email
     const purchaseData = {
-      duration: product_duration,
+      // duration: product_duration,
       products: hack_keys,
       orderId: razorpayOrderId,
       paymentId: razorpayPaymentId,
@@ -135,6 +135,8 @@ router.post("/check", async (req, res) => {
       discount: `₹${product_discount}`,
       price: `₹${product_price}`,
       quantity: product_quantity,
+      keysCount: keys_count,
+      keyType: product_type,
       total: `₹${`${paymentData.amount}`.slice(
         0,
         -2
