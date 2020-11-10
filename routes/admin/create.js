@@ -8,8 +8,9 @@ Copyright (c) Geekofia 2020 and beyond
 const utils = require("../../utils"),
   router = require("express").Router(),
   axios = require("axios"),
-  Key = require("../../mongo/model/KeySchema"),
-  Category = require("../../mongo/model/CategorySchema");
+  Key = require("../../mongo/models/KeySchema"),
+  Category = require("../../mongo/models/CategorySchema"),
+  Download = require("../../mongo/models/DownloadSchema");
 
 // check for prod or dev environment
 // if dev import dotenv
@@ -17,6 +18,7 @@ if (utils.isDevEnv()) {
   require("dotenv").config();
 }
 
+// create new keys
 router.post("/create/keys", async (req, res) => {
   const { data, timestamp } = req.body;
 
@@ -45,7 +47,8 @@ router.post("/create/keys", async (req, res) => {
   }
 });
 
-router.post("/create/categories", async (req, res) => {
+// create a new category
+router.post("/create/category", async (req, res) => {
   const { data, timestamp } = req.body;
 
   const config = {
@@ -91,6 +94,49 @@ router.post("/create/categories", async (req, res) => {
           });
         }
         // console.log(data);
+      }
+    );
+
+    res.json({
+      status: "ok",
+      msg: "Category add successfully",
+    });
+  }
+});
+
+// create a new download post
+router.post("/create/download", async (req, res) => {
+  const { data, timestamp } = req.body;
+
+  const config = {
+    headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
+  };
+
+  const { data: auth } = await axios
+    .post(`${process.env.AUTH_URL_BASE}/admin/auth`, { timestamp }, config)
+    .catch((error) => res.status(403).json(error));
+
+  if (auth.status === 69) {
+    const { title, sub, image, description, link, tags } = data;
+
+    await Download.create(
+      {
+        title,
+        sub,
+        image,
+        description,
+        link,
+        tags,
+      },
+      (error, data) => {
+        if (error) {
+          console.log(error);
+          res.json({
+            status: "failed",
+            msg: "Couldn't add category",
+          });
+        }
+        console.log(data);
       }
     );
 

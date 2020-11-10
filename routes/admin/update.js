@@ -8,8 +8,9 @@ Copyright (c) Geekofia 2020 and beyond
 const utils = require("../../utils"),
   router = require("express").Router(),
   axios = require("axios"),
-  Key = require("../../mongo/model/KeySchema"),
-  Category = require("../../mongo/model/CategorySchema");
+  Key = require("../../mongo/models/KeySchema"),
+  Category = require("../../mongo/models/CategorySchema"),
+  Download = require("../../mongo/models/DownloadSchema");
 
 // check for prod or dev environment
 // if dev import dotenv
@@ -109,6 +110,43 @@ router.post("/update/category", async (req, res) => {
     res.json({
       status: "ok",
       msg: "Category updated",
+    });
+  }
+});
+
+// update download post
+router.post("/update/download", async (req, res) => {
+  const { data, timestamp } = req.body;
+
+  const config = {
+    headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
+  };
+
+  const { data: auth } = await axios
+    .post(`${process.env.AUTH_URL_BASE}/admin/auth`, { timestamp }, config)
+    .catch((err) => res.status(403).json(err));
+
+  if (auth.status === 69) {
+    await Download.findById(data.id, async (err, doc) => {
+      if (err) {
+        console.log(`[E] Error finding documents`);
+        console.log(err);
+      } else {
+        const { title, sub, image, description, link, tags } = data;
+        doc.title = title;
+        doc.sub = sub;
+        doc.image = image;
+        // doc.description = description;
+        doc.link = link;
+        doc.tags = tags;
+        await doc.save();
+      }
+      console.log(doc);
+    });
+
+    res.json({
+      status: "ok",
+      msg: "Key updated",
     });
   }
 });

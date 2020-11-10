@@ -6,10 +6,19 @@ Copyright (c) Geekofia 2020 and beyond
 */
 
 const router = require("express").Router(),
-  Category = require("../mongo/model/CategorySchema");
+  Category = require("../mongo/models/CategorySchema"),
+  Download = require("../mongo/models/DownloadSchema");
 
+// public /store
 router.get("/categories", async (req, res) => {
   await Category.find({}, (err, data) => {
+    res.json(data);
+  });
+});
+
+// public /downloads
+router.get("/downloads", async (req, res) => {
+  await Download.find({}, (err, data) => {
     res.json(data);
   });
 });

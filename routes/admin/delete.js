@@ -8,8 +8,9 @@ Copyright (c) Geekofia 2020 and beyond
 const utils = require("../../utils"),
   router = require("express").Router(),
   axios = require("axios"),
-  Key = require("../../mongo/model/KeySchema"),
-  Category = require("../../mongo/model/CategorySchema");
+  Key = require("../../mongo/models/KeySchema"),
+  Category = require("../../mongo/models/CategorySchema"),
+  Download = require("../../mongo/models/DownloadSchema");
 
 // check for prod or dev environment
 // if dev import dotenv
@@ -146,6 +147,34 @@ router.post("/delete/categories", async (req, res) => {
         }
       }
     );
+  }
+});
+
+// delete a download post
+router.post("/delete/download", async (req, res) => {
+  const { id, timestamp } = req.body;
+
+  const config = {
+    headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
+  };
+
+  const { data: auth } = await axios
+    .post(`${process.env.AUTH_URL_BASE}/admin/auth`, { timestamp }, config)
+    .catch((error) => res.status(403).json(error));
+
+  if (auth.status === 69) {
+    Download.findByIdAndDelete(id, (error) => {
+      if (error) {
+        res.json({
+          status: "failed",
+          msg: "Couldn't delete Category",
+        });
+      }
+      res.json({
+        status: "ok",
+        msg: "Category deleted successfully",
+      });
+    });
   }
 });
 
