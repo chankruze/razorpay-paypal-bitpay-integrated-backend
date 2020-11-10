@@ -20,13 +20,17 @@ const mongoose = require("mongoose");
 const downloadSchema = new mongoose.Schema(
   {
     title: { type: String, trim: true },
-    sub: { type: String, trim: true, default: "This is latest patch, download it now!" },
+    sub: {
+      type: String,
+      trim: true,
+      default: "This is latest patch, download it now!",
+    },
     image: { type: String, trim: true },
-    description: { type: Number, default: "Lorem ipsum" },
-    link: { type: Boolean, default: "#", trim: true },
+    description: { type: String, default: "Lorem ipsum" },
+    link: { type: String, default: "#", trim: true },
     date: { type: String, default: new Date().toISOString() },
-    tag: { type: String, default: "new", trim: true },
-  },
+    tags: { type: Array, default: ["new"], trim: true },
+  }
   // opts
 );
 
