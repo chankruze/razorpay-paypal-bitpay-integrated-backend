@@ -136,7 +136,7 @@ router.post("/update/download", async (req, res) => {
         doc.title = title;
         doc.sub = sub;
         doc.image = image;
-        // doc.description = description;
+        doc.description = description;
         doc.link = link;
         doc.tags = tags;
         await doc.save();

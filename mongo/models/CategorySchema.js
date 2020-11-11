@@ -20,7 +20,7 @@ const mongoose = require("mongoose");
 const keySchema = new mongoose.Schema(
   {
     name: { type: String, trim: true },
-    category: { type: String, trim: true },
+    category: String,
     keysMultiplier: { type: Number, default: 1 },
     mrp: Number,
     price: Number,

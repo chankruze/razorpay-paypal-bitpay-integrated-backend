@@ -136,7 +136,7 @@ router.post("/create/download", async (req, res) => {
             msg: "Couldn't add category",
           });
         }
-        console.log(data);
+        // console.log(data);
       }
     );
 

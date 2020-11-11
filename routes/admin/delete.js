@@ -178,4 +178,43 @@ router.post("/delete/download", async (req, res) => {
   }
 });
 
+// bulk delete
+router.post("/delete/downloads", async (req, res) => {
+  const { ids, timestamp } = req.body;
+
+  const config = {
+    headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
+  };
+
+  const { data: auth } = await axios
+    .post(`${process.env.AUTH_URL_BASE}/admin/auth`, { timestamp }, config)
+    .catch((error) => res.status(403).json(error));
+
+  if (auth.status === 69) {
+    Download.deleteMany(
+      {
+        _id: {
+          $in: ids,
+        },
+      },
+      (error, response) => {
+        if (error) {
+          res.json({
+            status: "failed",
+            msg: "Couldn't delete Categories",
+          });
+        }
+        const { ok, n } = response;
+        if (ok === 1) {
+          res.json({
+            status: "ok",
+            count: n,
+            msg: "Keys deleted successfully",
+          });
+        }
+      }
+    );
+  }
+});
+
 module.exports = router;
