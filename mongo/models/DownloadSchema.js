@@ -23,10 +23,10 @@ const downloadSchema = new mongoose.Schema(
     sub: {
       type: String,
       trim: true,
-      default: "This is latest patch, download it now!",
+      default: "Required for hack",
     },
-    image: { type: String, trim: true },
-    description: { type: String, default: "Lorem ipsum" },
+    image: { type: String, trim: true, default: "" },
+    description: { type: String, default: "" },
     link: { type: String, default: "#", trim: true },
     date: { type: String, default: new Date().toISOString() },
     tags: { type: Array, default: ["new"], trim: true },

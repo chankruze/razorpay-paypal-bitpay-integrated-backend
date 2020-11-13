@@ -84,6 +84,7 @@ router.post("/update/category", async (req, res) => {
         const {
           name,
           category,
+          keysMultiplier,
           mrp,
           price,
           currency,
@@ -95,6 +96,7 @@ router.post("/update/category", async (req, res) => {
         // update category data
         doc.name = name;
         doc.category = category;
+        doc.keysMultiplier = keysMultiplier;
         doc.mrp = mrp;
         doc.price = price;
         doc.currency = currency;
