@@ -32,9 +32,10 @@ const keySchema = new mongoose.Schema(
         "https://res.cloudinary.com/chankruze/image/upload/v1604513114/Hunter/sx.png",
     },
     tag: { type: String, default: "", trim: true },
+    screenshots: { type: Array, default: [] },
     count: { type: Number, default: 0 },
     dateUpdated: { type: String, default: new Date().toISOString() },
-  },
+  }
   // opts
 );
 

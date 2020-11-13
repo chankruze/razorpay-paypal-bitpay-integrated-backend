@@ -90,6 +90,7 @@ router.post("/update/category", async (req, res) => {
           currency,
           description,
           image,
+          screenshots,
           tag,
         } = data;
 
@@ -103,6 +104,7 @@ router.post("/update/category", async (req, res) => {
         doc.description = description;
         doc.image = image;
         doc.tag = tag.toLowerCase();
+        doc.screenshots = screenshots;
         doc.count = keysCount;
         doc.dateUpdated = new Date().toISOString();
         await doc.save();

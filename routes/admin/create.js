@@ -68,6 +68,7 @@ router.post("/create/category", async (req, res) => {
       currency,
       description,
       image,
+      screenshots,
       tag,
     } = data;
 
@@ -83,6 +84,7 @@ router.post("/create/category", async (req, res) => {
         description,
         image,
         tag: tag.toLowerCase(),
+        screenshots,
         count: keysCount || 0,
       },
       (error, data) => {
@@ -126,7 +128,7 @@ router.post("/create/download", async (req, res) => {
         image,
         description,
         link,
-        tags: tags.map(tag => tag.toLowerCase()),
+        tags: tags.map((tag) => tag.toLowerCase()),
       },
       (error, data) => {
         if (error) {
