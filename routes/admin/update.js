@@ -102,7 +102,7 @@ router.post("/update/category", async (req, res) => {
         doc.currency = currency;
         doc.description = description;
         doc.image = image;
-        doc.tag = tag;
+        doc.tag = tag.toLowerCase();
         doc.count = keysCount;
         doc.dateUpdated = new Date().toISOString();
         await doc.save();
@@ -140,7 +140,7 @@ router.post("/update/download", async (req, res) => {
         doc.image = image;
         doc.description = description;
         doc.link = link;
-        doc.tags = tags;
+        doc.tags = tags.map((tag) => tag.toLowerCase());
         await doc.save();
       }
       console.log(doc);

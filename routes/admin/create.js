@@ -82,7 +82,7 @@ router.post("/create/category", async (req, res) => {
         currency,
         description,
         image,
-        tag,
+        tag: tag.toLowerCase(),
         count: keysCount || 0,
       },
       (error, data) => {
@@ -126,7 +126,7 @@ router.post("/create/download", async (req, res) => {
         image,
         description,
         link,
-        tags,
+        tags: tags.map(tag => tag.toLowerCase()),
       },
       (error, data) => {
         if (error) {
