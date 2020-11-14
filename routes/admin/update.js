@@ -83,6 +83,7 @@ router.post("/update/category", async (req, res) => {
       } else {
         const {
           name,
+          shortDesc,
           category,
           keysMultiplier,
           mrp,
@@ -96,6 +97,7 @@ router.post("/update/category", async (req, res) => {
 
         // update category data
         doc.name = name;
+        doc.shortDesc = shortDesc;
         doc.category = category;
         doc.keysMultiplier = keysMultiplier;
         doc.mrp = mrp;

@@ -25,6 +25,12 @@ const keySchema = new mongoose.Schema(
     mrp: Number,
     price: Number,
     currency: { type: String, default: "INR" },
+    shortDesc: {
+      type: String,
+      default:
+        "SX VIP is our own cheat tool for gameloop it has an inbuilt Bypass, So with SX VIP you will be matched against mobile players. For more info click read more.",
+      trim: true,
+    },
     description: { type: String, default: "" },
     image: {
       type: String,

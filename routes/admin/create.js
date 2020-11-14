@@ -62,6 +62,7 @@ router.post("/create/category", async (req, res) => {
   if (auth.status === 69) {
     const {
       name,
+      shortDesc,
       category,
       mrp,
       price,
@@ -77,6 +78,7 @@ router.post("/create/category", async (req, res) => {
     await Category.create(
       {
         name,
+        shortDesc,
         category,
         mrp,
         price,
