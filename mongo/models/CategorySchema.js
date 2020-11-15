@@ -22,8 +22,20 @@ const keySchema = new mongoose.Schema(
     name: { type: String, trim: true },
     category: String,
     keysMultiplier: { type: Number, default: 1 },
-    mrp: Number,
-    price: Number,
+    mrp: {
+      type: Object,
+      default: {
+        inr: 9600,
+        usd: 160,
+      },
+    },
+    price: {
+      type: Object,
+      default: {
+        inr: 7200,
+        usd: 108,
+      },
+    },
     currency: { type: String, default: "INR" },
     shortDesc: {
       type: String,
