@@ -36,6 +36,7 @@ connectMongoDB();
 app.use("/", require("./routes/order"));
 app.use("/", require("./routes/verify"));
 app.use("/", require("./routes/check"));
+app.use("/paypal", require("./routes/paypal"));
 // GET
 app.use("/store", require("./routes/store"));
 
