@@ -36,7 +36,6 @@ const keySchema = new mongoose.Schema(
         usd: 108,
       },
     },
-    currency: { type: String, default: "INR" },
     shortDesc: {
       type: String,
       default:
