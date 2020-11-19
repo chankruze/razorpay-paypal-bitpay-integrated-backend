@@ -25,11 +25,13 @@ const downloadSchema = new mongoose.Schema(
       trim: true,
       default: "Required for hack",
     },
-    image: { type: String, trim: true, default: "" },
+    // images: { type: Array, default: [] },
     description: { type: String, default: "" },
-    link: { type: String, default: "#", trim: true },
-    date: { type: String, default: new Date().toISOString() },
-    tags: { type: Array, default: ["new"], trim: true },
+    // extLinks: { type: Array, default: [] },
+    // ytLinks: { type: Array, default: [] },
+    downloadLink: { type: String, default: "#", trim: true },
+    date: { type: String, default: new Date().toISOString(), trim: true },
+    tags: { type: Array, default: ["new"] },
   }
   // opts
 );

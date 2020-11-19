@@ -138,12 +138,11 @@ router.post("/update/download", async (req, res) => {
         console.log(`[E] Error finding documents`);
         console.log(err);
       } else {
-        const { title, sub, image, description, link, tags } = data;
+        const { title, sub, description, downloadLink, tags } = data;
         doc.title = title;
         doc.sub = sub;
-        doc.image = image;
         doc.description = description;
-        doc.link = link;
+        doc.downloadLink = downloadLink;
         doc.tags = tags.map((tag) => tag.toLowerCase());
         await doc.save();
       }

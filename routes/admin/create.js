@@ -121,15 +121,14 @@ router.post("/create/download", async (req, res) => {
     .catch((error) => res.status(403).json(error));
 
   if (auth.status === 69) {
-    const { title, sub, image, description, link, tags } = data;
+    const { title, sub, description, downloadLink, tags } = data;
 
     await Download.create(
       {
         title,
         sub,
-        image,
         description,
-        link,
+        downloadLink,
         tags: tags.map((tag) => tag.toLowerCase()),
       },
       (error, data) => {
