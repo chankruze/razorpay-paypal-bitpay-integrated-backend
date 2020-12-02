@@ -38,10 +38,9 @@ const getBearerToken = async () => {
 };
 
 router.post("/success", async (req, res) => {
+  console.log(req.body.resource);
   const orderUrl = req.body.resource.links.filter(
-    (d) =>
-      d.rel === "up" &&
-      d.href.includes("https://api.sandbox.paypal.com/v2/checkout/orders/")
+    (d) => d.rel === "up" && d.href.includes("/v2/checkout/orders/")
   )[0].href;
 
   const accessToken = await getBearerToken();
