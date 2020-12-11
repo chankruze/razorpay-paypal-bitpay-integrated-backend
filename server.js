@@ -37,6 +37,7 @@ app.use("/", require("./routes/order"));
 app.use("/", require("./routes/verify"));
 app.use("/", require("./routes/check"));
 app.use("/paypal", require("./routes/paypal"));
+app.use("/bitpay", require("./routes/bitpay"));
 // GET
 app.use("/store", require("./routes/store"));
 
@@ -53,8 +54,12 @@ const networkInterfaces = os.networkInterfaces();
 let SERV_URL = networkInterfaces.eth0[0].address;
 
 app.listen(process.env.PORT, () => {
-  console.log(`Server on network: http://${SERV_URL}:${process.env.PORT}`);
+  console.log(
+    `[${new Date().toLocaleTimeString()}] [I] Server on network: http://${SERV_URL}:${process.env.PORT}`
+  );
   if (utils.isDevEnv()) {
-    console.log(`Server on local: http://localhost:${process.env.PORT}`);
+    console.log(
+      `[${new Date().toLocaleTimeString()}] [I] Server on local: http://localhost:${process.env.PORT}`
+    );
   }
 });

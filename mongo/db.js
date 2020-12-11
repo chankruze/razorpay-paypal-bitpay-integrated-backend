@@ -25,7 +25,11 @@ const connectMongoDB = async () => {
       useUnifiedTopology: true,
     });
 
-    console.log(`[I] MongoDB connected`);
+    console.log(
+      `[${new Date().toLocaleTimeString()}] [I] ${
+        process.env.MONGO_DB_ATLAS_NAME
+      } connected`
+    );
   } catch (err) {
     console.log(err);
     console.error(err.message);
