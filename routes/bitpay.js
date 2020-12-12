@@ -71,222 +71,218 @@ router.post("/create", async (req, res) => {
 
 // webhook to listen bitpay callback
 router.post("/verify", async (req, res) => {
-  try {
-    const {
-      event: { code: eventCode, name: eventName },
-      data: {
-        id: invoiceId,
-        url: invoiceUrl,
-        status,
-        price,
-        currency,
-        invoiceTime,
-        expirationTime,
-        currentTime: callbackTime,
-        buyerFields: { buyerEmail },
-        amountPaid,
-        orderId,
-      },
-    } = req.body;
+  const {
+    event: { code: eventCode, name: eventName },
+    data: {
+      id: invoiceId,
+      url: invoiceUrl,
+      status,
+      price,
+      currency,
+      invoiceTime,
+      expirationTime,
+      currentTime: callbackTime,
+      buyerFields: { buyerEmail },
+      amountPaid,
+      orderId,
+    },
+  } = req.body;
 
-    switch (eventCode) {
-      // 1003 - invoice_paidInFull
-      case 1003:
-        console.log(
-          `[${new Date().toLocaleTimeString()}] [I] received full payment for ${invoiceId}`
-        );
-        const {
-          data: { posData, transactionCurrency },
-        } = req.body;
-        // create and store a new invoice
-        Invoice.create(
-          {
-            orderId,
-            invoiceId,
-            invoiceUrl,
-            status: eventCode,
-            posData,
-            method: "bitpay",
-            invoiceTime: new Date(invoiceTime).toISOString(),
-            expirationTime: new Date(expirationTime).toISOString(),
-            buyerFields: { buyerEmail },
-            amountPaid,
-            transactionCurrency,
-          },
-          (error, data) => {
-            if (error) {
-              console.log(error);
-              return;
-            }
-            console.log(`created invoice ${invoiceId}`);
-            console.log(data);
+  switch (eventCode) {
+    // 1003 - invoice_paidInFull
+    case 1003:
+      console.log(
+        `[${new Date().toLocaleTimeString()}] [I] received full payment for ${invoiceId}`
+      );
+      const {
+        data: { posData, transactionCurrency },
+      } = req.body;
+      // create and store a new invoice
+      Invoice.create(
+        {
+          orderId,
+          invoiceId,
+          invoiceUrl,
+          status: eventCode,
+          posData,
+          method: "bitpay",
+          invoiceTime: new Date(invoiceTime).toISOString(),
+          expirationTime: new Date(expirationTime).toISOString(),
+          buyerFields: { buyerEmail },
+          amountPaid,
+          transactionCurrency,
+        },
+        (error, data) => {
+          if (error) {
+            console.log(error);
             return;
           }
-        );
-        break;
+          console.log(`created invoice ${invoiceId}`);
+          console.log(data);
+          return;
+        }
+      );
+      break;
 
-      // 1004 - invoice_expired
-      case 1004:
-        console.log(
-          `[${new Date().toLocaleTimeString()}] [I] invoice ${invoiceId} expired`
-        );
-      // 1013 - invoice_failedToConfirm
-      case 1013:
-        console.log(
-          `[${new Date().toLocaleTimeString()}] [I] invoice ${invoiceId} failed to confirm`
-        );
-        // find, check & delete invoice status
-        Invoice.deleteOne({ invoiceId, orderId, status: 1003 }, (err, doc) => {
+    // 1004 - invoice_expired
+    case 1004:
+      console.log(
+        `[${new Date().toLocaleTimeString()}] [I] invoice ${invoiceId} expired`
+      );
+    // 1013 - invoice_failedToConfirm
+    case 1013:
+      console.log(
+        `[${new Date().toLocaleTimeString()}] [I] invoice ${invoiceId} failed to confirm`
+      );
+      // find, check & delete invoice status
+      Invoice.deleteOne({ invoiceId, orderId, status: 1003 }, (err, doc) => {
+        if (err) {
+          console.log(err);
+          return;
+        }
+        console.log(`deleted invoice ${invoiceId}`);
+        return;
+      });
+      break;
+
+    // 1005 - invoice_confirmed
+    case 1005:
+      console.log(
+        `[${new Date().toLocaleTimeString()}] [I] invoice ${invoiceId} confirmed`
+      );
+    // 1006 - invoice_completed
+    case 1006:
+      let isAlreadyConfirmed = false;
+      console.log(
+        `[${new Date().toLocaleTimeString()}] [I] invoice ${invoiceId} completed`
+      );
+      // find, check & update invoice status
+      await Invoice.findOne(
+        { invoiceId, orderId, status: 1003 },
+        (err, doc) => {
           if (err) {
             console.log(err);
             return;
-          }
-          console.log(`deleted invoice ${invoiceId}`);
-          return;
-        });
-        break;
-
-      // 1005 - invoice_confirmed
-      case 1005:
-        console.log(
-          `[${new Date().toLocaleTimeString()}] [I] invoice ${invoiceId} confirmed`
-        );
-      // 1006 - invoice_completed
-      case 1006:
-        let isAlreadyConfirmed = false;
-        console.log(
-          `[${new Date().toLocaleTimeString()}] [I] invoice ${invoiceId} completed`
-        );
-        // find, check & update invoice status
-        await Invoice.findOne(
-          { invoiceId, orderId, status: 1003 },
-          (err, doc) => {
-            if (err) {
-              console.log(err);
-              return;
-            } else {
-              if (doc !== null) {
-                doc.callbackTime = new Date(callbackTime).toISOString();
-                doc.status = eventCode;
-                doc.save();
-                console.log(`updated invoice ${invoiceId} status`);
-                return;
-              }
-              console.log(`already confirmed invoice ${invoiceId}`);
-              isAlreadyConfirmed = true;
+          } else {
+            if (doc !== null) {
+              doc.callbackTime = new Date(callbackTime).toISOString();
+              doc.status = eventCode;
+              doc.save();
+              console.log(`updated invoice ${invoiceId} status`);
               return;
             }
+            console.log(`already confirmed invoice ${invoiceId}`);
+            isAlreadyConfirmed = true;
+            return;
           }
-        );
+        }
+      );
 
-        if (!isAlreadyConfirmed) {
-          // send email with key to customer
-          const {
-            data: { posData: product, transactionCurrency: paymentCurrency },
-          } = req.body;
+      if (!isAlreadyConfirmed) {
+        // send email with key to customer
+        const {
+          data: { posData: product, transactionCurrency: paymentCurrency },
+        } = req.body;
 
-          const {
-            name,
-            price: productPrice,
-            category,
-            quantity,
-            keysMultiplier,
-          } = JSON.parse(product);
+        const {
+          name,
+          price: productPrice,
+          category,
+          quantity,
+          keysMultiplier,
+        } = JSON.parse(product);
 
-          // store keys only for delivery purpose
-          const hack_keys = [];
-          const keysCount = quantity * keysMultiplier;
+        // store keys only for delivery purpose
+        const hack_keys = [];
+        const keysCount = quantity * keysMultiplier;
 
-          // grab key(s) from db
-          // get key and update key count in category
-          if (keysCount > 1) {
-            await Key.find(
-              { type: category, isSold: false, isActivated: false },
-              (err, data) => {
-                if (err) {
-                  console.log(`[E] Error finding keys`);
-                  console.log(err);
-                  return;
-                } else {
-                  for (let i = 0; i < keysCount; ++i) {
-                    const doc = data[i];
-                    hack_keys.push(doc.key);
-                    doc.isActivated = true;
-                    doc.isSold = true;
-                    doc.dateSold = new Date().toISOString();
-                    doc.save();
-                  }
-                  return;
-                }
-              }
-            );
-          } else {
-            await Key.findOne(
-              { type: category, isSold: false, isActivated: false },
-              (err, doc) => {
-                if (err) {
-                  console.log(`[E] Error finding keys`);
-                  console.log(err);
-                  return;
-                } else {
+        // grab key(s) from db
+        // get key and update key count in category
+        if (keysCount > 1) {
+          await Key.find(
+            { type: category, isSold: false, isActivated: false },
+            (err, data) => {
+              if (err) {
+                console.log(`[E] Error finding keys`);
+                console.log(err);
+                return;
+              } else {
+                for (let i = 0; i < keysCount; ++i) {
+                  const doc = data[i];
                   hack_keys.push(doc.key);
                   doc.isActivated = true;
                   doc.isSold = true;
                   doc.dateSold = new Date().toISOString();
+                  doc.save();
+                }
+                return;
+              }
+            }
+          );
+        } else {
+          await Key.findOne(
+            { type: category, isSold: false, isActivated: false },
+            (err, doc) => {
+              if (err) {
+                console.log(`[E] Error finding keys`);
+                console.log(err);
+                return;
+              } else {
+                hack_keys.push(doc.key);
+                doc.isActivated = true;
+                doc.isSold = true;
+                doc.dateSold = new Date().toISOString();
+                doc.save();
+                return;
+              }
+            }
+          );
+        }
+
+        // Prepare data for email
+        const purchaseData = {
+          products: hack_keys,
+          orderId, // ok
+          invoiceId, // ok
+          invoiceUrl,
+          receipt: orderId, // ok
+          method: "bitpay", // ok
+          name, // ok
+          price: `${productPrice} ${currency}`, // ok
+          quantity, // ok
+          keysCount, // ok
+          keyType: category, // ok
+          total: `${amountPaid} ${paymentCurrency} (with mining charge)`,
+          email: buyerEmail,
+          date: new Date(callbackTime).toLocaleString(),
+        };
+
+        // send key
+        sendInBlueMail(purchaseData).then(async (response) => {
+          if (response == "success") {
+            // find, check & update invoice status
+            Invoice.findOne(
+              { invoiceId, orderId, status: eventCode },
+              (err, doc) => {
+                if (err) {
+                  console.log(err);
+                  return;
+                } else {
+                  console.log(hack_keys);
+                  console.log(`adding sold keys to ${invoiceId}`);
+                  doc.keys = hack_keys;
                   doc.save();
                   return;
                 }
               }
             );
           }
-
-          // Prepare data for email
-          const purchaseData = {
-            products: hack_keys,
-            orderId, // ok
-            invoiceId, // ok
-            invoiceUrl,
-            receipt: orderId, // ok
-            method: "bitpay", // ok
-            name, // ok
-            price: `${productPrice} ${currency}`, // ok
-            quantity, // ok
-            keysCount, // ok
-            keyType: category, // ok
-            total: `${amountPaid} ${paymentCurrency} (with mining charge)`,
-            email: buyerEmail,
-            date: new Date(callbackTime).toLocaleString(),
-          };
-
-          // send key
-          sendInBlueMail(purchaseData).then(async (response) => {
-            if (response == "success") {
-              // find, check & update invoice status
-              Invoice.findOne(
-                { invoiceId, orderId, status: eventCode },
-                (err, doc) => {
-                  if (err) {
-                    console.log(err);
-                    return;
-                  } else {
-                    console.log(hack_keys);
-                    console.log(`adding sold keys to ${invoiceId}`);
-                    doc.keys = hack_keys;
-                    doc.save();
-                    return;
-                  }
-                }
-              );
-            }
-          });
-        }
-        break;
-    }
-  } catch (error) {
-    console.log(error);
-  } finally {
-    res.status(200).send();
+        });
+      }
+      break;
   }
+
+  res.status(200).send();
 });
 
 module.exports = router;
