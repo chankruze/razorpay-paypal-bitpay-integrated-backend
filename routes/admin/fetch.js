@@ -10,7 +10,8 @@ const utils = require("../../utils"),
   axios = require("axios"),
   Key = require("../../mongo/models/KeySchema"),
   Category = require("../../mongo/models/CategorySchema"),
-  Download = require("../../mongo/models/DownloadSchema");
+  Download = require("../../mongo/models/DownloadSchema"),
+  Invoice = require("../../mongo/models/InvoiceSchema");
 
 // check for prod or dev environment
 // if dev import dotenv
@@ -82,7 +83,31 @@ router.post("/fetch/downloads", async (req, res) => {
       if (error) {
         res.json({
           status: "failed",
-          msg: "Couldn't fetch categories",
+          msg: "Couldn't fetch downloads",
+        });
+      }
+      res.json(data);
+    });
+  }
+});
+
+router.post("/fetch/invoices", async (req, res) => {
+  const { timestamp } = req.body;
+
+  const config = {
+    headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
+  };
+
+  const { data: auth } = await axios
+    .post(`${process.env.AUTH_URL_BASE}/admin/auth`, { timestamp }, config)
+    .catch((error) => res.status(403).json(error));
+
+  if (auth.status === 69) {
+    await Invoice.find({}, (error, data) => {
+      if (error) {
+        res.json({
+          status: "failed",
+          msg: "Couldn't fetch invoices",
         });
       }
       res.json(data);

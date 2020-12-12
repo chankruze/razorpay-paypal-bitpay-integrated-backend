@@ -62,12 +62,14 @@ router.post("/create/category", async (req, res) => {
   if (auth.status === 69) {
     const {
       name,
+      shortDesc,
       category,
       mrp,
       price,
       currency,
       description,
       image,
+      screenshots,
       tag,
     } = data;
 
@@ -76,13 +78,15 @@ router.post("/create/category", async (req, res) => {
     await Category.create(
       {
         name,
+        shortDesc,
         category,
         mrp,
         price,
         currency,
         description,
         image,
-        tag,
+        tag: tag.toLowerCase(),
+        screenshots,
         count: keysCount || 0,
       },
       (error, data) => {
@@ -117,16 +121,15 @@ router.post("/create/download", async (req, res) => {
     .catch((error) => res.status(403).json(error));
 
   if (auth.status === 69) {
-    const { title, sub, image, description, link, tags } = data;
+    const { title, sub, description, downloadLink, tags } = data;
 
     await Download.create(
       {
         title,
         sub,
-        image,
         description,
-        link,
-        tags,
+        downloadLink,
+        tags: tags.map((tag) => tag.toLowerCase()),
       },
       (error, data) => {
         if (error) {

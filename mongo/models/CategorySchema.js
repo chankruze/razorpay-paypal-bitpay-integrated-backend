@@ -22,9 +22,26 @@ const keySchema = new mongoose.Schema(
     name: { type: String, trim: true },
     category: String,
     keysMultiplier: { type: Number, default: 1 },
-    mrp: Number,
-    price: Number,
-    currency: { type: String, default: "INR" },
+    mrp: {
+      type: Object,
+      default: {
+        inr: 9600,
+        usd: 160,
+      },
+    },
+    price: {
+      type: Object,
+      default: {
+        inr: 7200,
+        usd: 108,
+      },
+    },
+    shortDesc: {
+      type: String,
+      default:
+        "SX VIP is our own cheat tool for gameloop it has an inbuilt Bypass, So with SX VIP you will be matched against mobile players. For more info click read more.",
+      trim: true,
+    },
     description: { type: String, default: "" },
     image: {
       type: String,
@@ -32,9 +49,10 @@ const keySchema = new mongoose.Schema(
         "https://res.cloudinary.com/chankruze/image/upload/v1604513114/Hunter/sx.png",
     },
     tag: { type: String, default: "", trim: true },
+    screenshots: { type: Array, default: [] },
     count: { type: Number, default: 0 },
     dateUpdated: { type: String, default: new Date().toISOString() },
-  },
+  }
   // opts
 );
 

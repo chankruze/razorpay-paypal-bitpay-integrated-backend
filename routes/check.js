@@ -66,14 +66,10 @@ router.post("/check", async (req, res) => {
 
     const {
       product_name,
-      product_mrp,
       product_price,
-      product_discount,
       product_type,
       product_quantity,
       keys_count,
-      // total_price,
-      total_discount,
     } = orderData.notes;
 
     // store keys only for delivery purpose
@@ -126,13 +122,10 @@ router.post("/check", async (req, res) => {
 
     // Prepare data for email
     const purchaseData = {
-      // duration: product_duration,
       products: hack_keys,
       orderId: razorpayOrderId,
       paymentId: razorpayPaymentId,
       name: product_name,
-      mrp: `₹${product_mrp}`,
-      discount: `₹${product_discount}`,
       price: `₹${product_price}`,
       quantity: product_quantity,
       keysCount: keys_count,
@@ -141,7 +134,6 @@ router.post("/check", async (req, res) => {
         0,
         -2
       )}.${`${paymentData.amount}`.slice(-2)}`,
-      totalDiscount: `₹${total_discount}`,
       email: paymentData.email,
       mobile: paymentData.contact,
       receipt: orderData.receipt,

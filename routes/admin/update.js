@@ -83,24 +83,30 @@ router.post("/update/category", async (req, res) => {
       } else {
         const {
           name,
+          shortDesc,
           category,
+          keysMultiplier,
           mrp,
           price,
           currency,
           description,
           image,
+          screenshots,
           tag,
         } = data;
 
         // update category data
         doc.name = name;
+        doc.shortDesc = shortDesc;
         doc.category = category;
+        doc.keysMultiplier = keysMultiplier;
         doc.mrp = mrp;
         doc.price = price;
         doc.currency = currency;
         doc.description = description;
         doc.image = image;
-        doc.tag = tag;
+        doc.tag = tag.toLowerCase();
+        doc.screenshots = screenshots;
         doc.count = keysCount;
         doc.dateUpdated = new Date().toISOString();
         await doc.save();
@@ -132,13 +138,12 @@ router.post("/update/download", async (req, res) => {
         console.log(`[E] Error finding documents`);
         console.log(err);
       } else {
-        const { title, sub, image, description, link, tags } = data;
+        const { title, sub, description, downloadLink, tags } = data;
         doc.title = title;
         doc.sub = sub;
-        doc.image = image;
         doc.description = description;
-        doc.link = link;
-        doc.tags = tags;
+        doc.downloadLink = downloadLink;
+        doc.tags = tags.map((tag) => tag.toLowerCase());
         await doc.save();
       }
       console.log(doc);

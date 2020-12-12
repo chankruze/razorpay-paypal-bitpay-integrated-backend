@@ -23,9 +23,13 @@ const keySchema = new mongoose.Schema(
     type: { type: String, trim: true },
     isSold: { type: Boolean, default: false },
     isActivated: { type: Boolean, default: false },
-    dateCreated: { type: String, default: new Date().toISOString() },
+    dateCreated: {
+      type: String,
+      default: new Date().toISOString(),
+      trim: true,
+    },
     dateSold: { type: String, default: "" },
-  },
+  }
   // opts
 );
 
