@@ -21,6 +21,12 @@ if (utils.isDevEnv()) {
 // create an invoice
 router.post("/create", async (req, res) => {
   // extract data form req
+  if (req.body.constructor === Object && Object.keys(req.body).length === 0) {
+    res.sendStatus(200);
+    return;
+  }
+
+  console.log(`[${new Date().toLocaleTimeString()}] [I] creating invoice`);
   const {
     price,
     currency,
@@ -86,11 +92,14 @@ router.post("/verify", async (req, res) => {
     switch (eventCode) {
       // 1003 - invoice_paidInFull
       case 1003:
+        console.log(
+          `[${new Date().toLocaleTimeString()}] [I] received full payment for ${invoiceId}`
+        );
         const {
           data: { posData, transactionCurrency },
         } = req.body;
         // create and store a new invoice
-        await Invoice.create(
+        Invoice.create(
           {
             orderId,
             invoiceId,
@@ -107,157 +116,176 @@ router.post("/verify", async (req, res) => {
           (error, data) => {
             if (error) {
               console.log(error);
-              res.status(200).send();
+              return;
             }
             console.log(`created invoice ${invoiceId}`);
             console.log(data);
-            res.status(200).send();
+            return;
           }
         );
         break;
 
       // 1004 - invoice_expired
       case 1004:
+        console.log(
+          `[${new Date().toLocaleTimeString()}] [I] invoice ${invoiceId} expired`
+        );
       // 1013 - invoice_failedToConfirm
       case 1013:
-        // find, check & delete invoice status
-        await Invoice.deleteOne(
-          { invoiceId, orderId, status: 1003 },
-          (err, doc) => {
-            if (err) {
-              console.log(err);
-              res.status(200).send();
-            }
-            console.log(`deleted invoice ${invoiceId}`);
-            res.status(200).send();
-          }
+        console.log(
+          `[${new Date().toLocaleTimeString()}] [I] invoice ${invoiceId} failed to confirm`
         );
+        // find, check & delete invoice status
+        Invoice.deleteOne({ invoiceId, orderId, status: 1003 }, (err, doc) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          console.log(`deleted invoice ${invoiceId}`);
+          return;
+        });
         break;
 
       // 1005 - invoice_confirmed
       case 1005:
+        console.log(
+          `[${new Date().toLocaleTimeString()}] [I] invoice ${invoiceId} confirmed`
+        );
       // 1006 - invoice_completed
       case 1006:
+        let isAlreadyConfirmed = false;
+        console.log(
+          `[${new Date().toLocaleTimeString()}] [I] invoice ${invoiceId} completed`
+        );
         // find, check & update invoice status
         await Invoice.findOne(
           { invoiceId, orderId, status: 1003 },
           (err, doc) => {
             if (err) {
               console.log(err);
-              res.status(200).send();
+              return;
             } else {
-              console.log(doc);
-              doc.callbackTime = new Date(callbackTime).toISOString();
-              doc.status = eventCode;
-              doc.save();
-              console.log(`updated invoice ${invoiceId}`);
-              res.status(200).send();
+              if (doc !== null) {
+                doc.callbackTime = new Date(callbackTime).toISOString();
+                doc.status = eventCode;
+                doc.save();
+                console.log(`updated invoice ${invoiceId} status`);
+                return;
+              }
+              console.log(`already confirmed invoice ${invoiceId}`);
+              isAlreadyConfirmed = true;
+              return;
             }
           }
         );
-        // send email with key to customer
-        const {
-          data: { posData: product, transactionCurrency: paymentCurrency },
-        } = req.body;
 
-        const {
-          name,
-          price: productPrice,
-          category,
-          quantity,
-          keysMultiplier,
-        } = JSON.parse(product);
+        if (!isAlreadyConfirmed) {
+          // send email with key to customer
+          const {
+            data: { posData: product, transactionCurrency: paymentCurrency },
+          } = req.body;
 
-        // store keys only for delivery purpose
-        const hack_keys = [];
-        const keysCount = quantity * keysMultiplier;
+          const {
+            name,
+            price: productPrice,
+            category,
+            quantity,
+            keysMultiplier,
+          } = JSON.parse(product);
 
-        // grab key(s) from db
-        // get key and update key count in category
-        if (keysCount > 1) {
-          await Key.find(
-            { type: category, isSold: false, isActivated: false },
-            (err, data) => {
-              if (err) {
-                console.log(`[E] Error finding documents`);
-                console.log(err);
-                res.status(200).send();
-              } else {
-                for (let i = 0; i < keysCount; ++i) {
-                  const doc = data[i];
+          // store keys only for delivery purpose
+          const hack_keys = [];
+          const keysCount = quantity * keysMultiplier;
+
+          // grab key(s) from db
+          // get key and update key count in category
+          if (keysCount > 1) {
+            await Key.find(
+              { type: category, isSold: false, isActivated: false },
+              (err, data) => {
+                if (err) {
+                  console.log(`[E] Error finding keys`);
+                  console.log(err);
+                  return;
+                } else {
+                  for (let i = 0; i < keysCount; ++i) {
+                    const doc = data[i];
+                    hack_keys.push(doc.key);
+                    doc.isActivated = true;
+                    doc.isSold = true;
+                    doc.dateSold = new Date().toISOString();
+                    doc.save();
+                  }
+                  return;
+                }
+              }
+            );
+          } else {
+            await Key.findOne(
+              { type: category, isSold: false, isActivated: false },
+              (err, doc) => {
+                if (err) {
+                  console.log(`[E] Error finding keys`);
+                  console.log(err);
+                  return;
+                } else {
                   hack_keys.push(doc.key);
                   doc.isActivated = true;
                   doc.isSold = true;
                   doc.dateSold = new Date().toISOString();
                   doc.save();
-                  res.status(200).send();
-                }
-              }
-            }
-          );
-        } else {
-          await Key.findOne(
-            { type: category, isSold: false, isActivated: false },
-            (err, doc) => {
-              if (err) {
-                console.log(`[E] Error finding documents`);
-                console.log(err);
-                res.status(200).send();
-              } else {
-                console.log(doc);
-                hack_keys.push(doc.key);
-                doc.isActivated = true;
-                doc.isSold = true;
-                doc.dateSold = new Date().toISOString();
-                doc.save();
-                res.status(200).send();
-              }
-            }
-          );
-        }
-
-        // Prepare data for email
-        const purchaseData = {
-          products: hack_keys,
-          orderId, // ok
-          invoiceId, // ok
-          invoiceUrl,
-          receipt: orderId, // ok
-          method: "bitpay", // ok
-          name, // ok
-          price: `${productPrice} ${currency}`, // ok
-          quantity, // ok
-          keysCount, // ok
-          keyType: category, // ok
-          total: `${amountPaid} ${paymentCurrency} (with mining charge)`,
-          email: buyerEmail,
-          date: new Date(callbackTime).toLocaleString(),
-        };
-
-        // send key
-        sendInBlueMail(purchaseData).then(async (response) => {
-          if (response == "success") {
-            // find, check & update invoice status
-            await Invoice.findOne(
-              { invoiceId, orderId, status: eventCode },
-              (err, doc) => {
-                if (err) {
-                  console.log(err);
-                  res.status(200).send();
-                } else {
-                  console.log(`adding keys to ${invoiceId}`);
-                  doc.keys = hack_keys;
-                  doc.save();
-                  res.status(200).send();
+                  return;
                 }
               }
             );
           }
-        });
+
+          // Prepare data for email
+          const purchaseData = {
+            products: hack_keys,
+            orderId, // ok
+            invoiceId, // ok
+            invoiceUrl,
+            receipt: orderId, // ok
+            method: "bitpay", // ok
+            name, // ok
+            price: `${productPrice} ${currency}`, // ok
+            quantity, // ok
+            keysCount, // ok
+            keyType: category, // ok
+            total: `${amountPaid} ${paymentCurrency} (with mining charge)`,
+            email: buyerEmail,
+            date: new Date(callbackTime).toLocaleString(),
+          };
+
+          // send key
+          sendInBlueMail(purchaseData).then(async (response) => {
+            if (response == "success") {
+              // find, check & update invoice status
+              Invoice.findOne(
+                { invoiceId, orderId, status: eventCode },
+                (err, doc) => {
+                  if (err) {
+                    console.log(err);
+                    return;
+                  } else {
+                    console.log(hack_keys);
+                    console.log(`adding sold keys to ${invoiceId}`);
+                    doc.keys = hack_keys;
+                    doc.save();
+                    return;
+                  }
+                }
+              );
+            }
+          });
+        }
         break;
     }
   } catch (error) {
     console.log(error);
+  } finally {
+    res.status(200).send();
   }
 });
 

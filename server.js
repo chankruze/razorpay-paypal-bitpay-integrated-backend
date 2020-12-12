@@ -55,11 +55,15 @@ let SERV_URL = networkInterfaces.eth0[0].address;
 
 app.listen(process.env.PORT, () => {
   console.log(
-    `[${new Date().toLocaleTimeString()}] [I] Server on network: http://${SERV_URL}:${process.env.PORT}`
+    `[${new Date().toLocaleTimeString()}] [I] Server on network: http://${SERV_URL}:${
+      process.env.PORT
+    }`
   );
   if (utils.isDevEnv()) {
     console.log(
-      `[${new Date().toLocaleTimeString()}] [I] Server on local: http://localhost:${process.env.PORT}`
+      `[${new Date().toLocaleTimeString()}] [I] Server on local: http://localhost:${
+        process.env.PORT
+      }`
     );
   }
 });
