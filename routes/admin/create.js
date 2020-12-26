@@ -10,7 +10,8 @@ const utils = require("../../utils"),
   axios = require("axios"),
   Key = require("../../mongo/models/KeySchema"),
   Category = require("../../mongo/models/CategorySchema"),
-  Download = require("../../mongo/models/DownloadSchema");
+  Download = require("../../mongo/models/DownloadSchema"),
+  Screenshot = require("../../mongo/models/ScreenshotSchema");
 
 // check for prod or dev environment
 // if dev import dotenv
@@ -33,7 +34,7 @@ router.post("/create/keys", async (req, res) => {
   if (auth.status === 69) {
     await Key.insertMany(data, async (err, doc) => {
       if (err) {
-        console.log(`[E] Error finding documents`);
+        console.log(`[E] Error inserting documents`);
         console.log(err);
       } else {
         // all ok
@@ -146,6 +147,35 @@ router.post("/create/download", async (req, res) => {
     res.json({
       status: "ok",
       msg: "Category add successfully",
+    });
+  }
+});
+
+// add screenshots
+router.post("/create/review", async (req, res) => {
+  const { data, timestamp } = req.body;
+
+  const config = {
+    headers: { "x-hunter-signature": req.headers["x-hunter-signature"] },
+  };
+
+  const { data: auth } = await axios
+    .post(`${process.env.AUTH_URL_BASE}/admin/auth`, { timestamp }, config)
+    .catch((error) => res.status(403).json(error));
+
+  if (auth.status === 69) {
+    await Screenshot.insertMany(data, async (err, doc) => {
+      if (err) {
+        console.log(`[E] Error inserting documents`);
+        console.log(err);
+      } else {
+        // all ok
+      }
+    });
+
+    res.json({
+      status: "ok",
+      msg: "Review inserted",
     });
   }
 });

@@ -7,7 +7,8 @@ Copyright (c) Geekofia 2020 and beyond
 
 const router = require("express").Router(),
   Category = require("../mongo/models/CategorySchema"),
-  Download = require("../mongo/models/DownloadSchema");
+  Download = require("../mongo/models/DownloadSchema"),
+  Screenshot = require("../mongo/models/ScreenshotSchema");
 
 // public /store
 router.get("/categories", async (req, res) => {
@@ -19,6 +20,13 @@ router.get("/categories", async (req, res) => {
 // public /downloads
 router.get("/downloads", async (req, res) => {
   await Download.find({}, (err, data) => {
+    res.json(data);
+  });
+});
+
+// public /downloads
+router.get("/gallery", async (req, res) => {
+  await Screenshot.find({}, (err, data) => {
     res.json(data);
   });
 });
